@@ -33,7 +33,7 @@ class Player:
         return self.calc_poly_val(index)
 
     # sum all players poly of x_player_index
-    def sum_x_all_poly_val(self):
+    def get_players_sum_Xi_val(self):
         return (sum(player.get_poly_val(self.__player_index) for player in dealer.players))    
 
 

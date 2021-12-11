@@ -2,6 +2,7 @@ import numpy
 import random
 import csv
 from player import Player
+from scipy.interpolate import lagrange
 
 players = [Player(4, index) for index in range(4)]
 class Dealer:
@@ -14,3 +15,11 @@ class Dealer:
 
     def get_random_X_vals(self):
         return self.__random_X_vals
+
+    def get_all_X_vals(self):
+        return [player.get_players_sum_X_val() for player in players]
+    
+    def get_sec_val_sum(self, X, PX):
+        return int(round(lagrange(X, PX)(0)))
+
+    
