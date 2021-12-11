@@ -16,7 +16,7 @@ class Player:
         return self.__polynom_coefs
 
     def random_vals_X(self):
-        return self.__server.get_random_vals_X()
+        return Dealer.get_random_X_vals()
 
     def get_num_of_players(self):
         return self.__num_of_players
