@@ -1,11 +1,9 @@
 import numpy
 import random
 import csv
-from Dealer import [Dealer, Players]
-
-
-
+from dealer import Dealer
 class Player:
+
     def __init__(self, num_of_players, player_index):
         self.__player_index = player_index
         self.__db = "db" + str(player_index) + ".csv"
@@ -35,6 +33,6 @@ class Player:
 
     # sum all players poly of x_player_index
     def sum_x_all_poly_val(self):
-        return (sum(player.get_poly_val(self.player_index) for player in Players))    
+        return (sum(player.get_poly_val(self.player_index) for player in Dealer.players))    
 
 
