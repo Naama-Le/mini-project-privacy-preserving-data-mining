@@ -34,6 +34,13 @@ class Player:
 
     # sum all players poly of x_player_index
     def get_players_sum_Xi_val(self):
-        return (sum(player.get_poly_val(self.__player_index) for player in dealer.players))    
+        return (sum(player.get_poly_val(self.__player_index) for player in dealer.players))   
 
-
+    #Let T(ai) be the set of objects whose A attribute value is ai
+    def get_Tai(self, a, i, db):
+        # return (count # of appeareance of ai for A attr in db)
+        return;
+    # let T(ai,cj) be the set of objects with value of A is ai and category cj.
+    def get_Tai_Cai(self, c, a, i, db):
+        # return (count # of appeareance of ci in get_Tai(self, a, i, db))
+        return;

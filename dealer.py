@@ -1,3 +1,4 @@
+from math import log2
 import numpy
 import random
 import csv
@@ -22,4 +23,11 @@ class Dealer:
     def get_sec_val_sum(self, X, PX):
         return int(round(lagrange(X, PX)(0)))
 
-    
+    # calc E_TA without dividing by T as we'll compare these values to find the best attr A among all
+    # A is the set of possible attr values for A
+    # Ta is an array holds Ta values for each a
+    # Tac is a 2D-aaray holds Tac values for each a and category value c
+    def calc_E_TA(self, A, Ta, Tac):
+        E_TA = (-sum(sum(abs(Tac[attr][cat])*abs(log2(Tac[attr][cat])) for cat in Tac) for attr in A))
+        + (sum(abs(Ta[attr])*log2(abs(Ta[attr])) for attr in A))
+        return E_TA
