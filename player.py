@@ -13,7 +13,7 @@ class Player:
 
     def get_polynom_coef(self):
         return self.__polynom_coefs
-
+    
     def random_vals_X(self):
         return Dealer.get_random_X_vals()
 
@@ -43,4 +43,8 @@ class Player:
     # let T(ai,cj) be the set of objects with value of A is ai and category cj.
     def get_Tai_Cai(self, c, a, i, db):
         # return (count # of appeareance of ci in get_Tai(self, a, i, db))
+        return;
+
+    def get_c_sum(self, c):
+        # return (count # of objects with category c in db)
         return;
