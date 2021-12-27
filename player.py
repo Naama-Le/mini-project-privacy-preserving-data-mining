@@ -7,7 +7,7 @@ class Player:
 
     def __init__(self, num_of_players, player_index):
         self.__player_index = player_index
-        self.__db = "db" + str(player_index) + ".csv"
+        self.__db = f"db_{player_index}"+ ".csv"
         self.__num_of_players = num_of_players
         self.__polynom_coefs = []
 
@@ -39,12 +39,13 @@ class Player:
     #Let T(ai) be the set of objects whose A attribute value is ai
     def get_Tai(self, a, i, db):
         # return (count # of appeareance of ai for A attr in db)
-        return;
+        return
+
     # let T(ai,cj) be the set of objects with value of A is ai and category cj.
     def get_Tai_Cai(self, c, a, i, db):
         # return (count # of appeareance of ci in get_Tai(self, a, i, db))
-        return;
+        return
 
     def get_c_sum(self, c):
         # return (count # of objects with category c in db)
-        return;
+        return
