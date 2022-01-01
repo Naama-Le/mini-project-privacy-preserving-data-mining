@@ -1,51 +1,78 @@
-import numpy
 import random
-import csv
-import dealer
-from dealer import Dealer
+
+# import dealer
+import socket
+
+from db import DB
+
+
+# from dealer import Dealer
+
+
 class Player:
 
-    def __init__(self, num_of_players, player_index):
-        self.__player_index = player_index
-        self.__db = f"db_{player_index}"+ ".csv"
+    def __init__(self, num_of_players, idx, x):
+        self.idx = idx
+        self.__db = DB(idx)
         self.__num_of_players = num_of_players
-        self.__polynom_coefs = []
+        self.x = x
 
-    def get_polynom_coef(self):
-        return self.__polynom_coefs
-    
-    def random_vals_X(self):
-        return Dealer.get_random_X_vals()
+        self.__poly = []
+        self.__generate_poly()
 
     def get_num_of_players(self):
         return self.__num_of_players
 
-    def create_poly(self, sec_val):
-        rank = self.get_num_of_players()-1
-        self.__polynom_coefs =  [sec_val] + [random.randint(-20,20) for _ in range(rank-1)]
-        return self.__polynom_coefs
-
-    def calc_poly_val(self, index):
-        x = self.random_vals_X[index]
-        return sum(coef * x**n for n, coef in enumerate(self.__polynom_coefs))
-
-    def get_poly_val(self, index):
-        return self.calc_poly_val(index)
+    def get_poly_val(self):
+        return sum(coef * self.x ** k for (k, coef) in enumerate(self.__poly, start=1))
 
     # sum all players poly of x_player_index
     def get_players_sum_Xi_val(self):
-        return (sum(player.get_poly_val(self.__player_index) for player in dealer.players))   
-
-    #Let T(ai) be the set of objects whose A attribute value is ai
-    def get_Tai(self, a, i, db):
-        # return (count # of appeareance of ai for A attr in db)
         return
+        # return (sum(player.get_poly_val(self.__player_index) for player in dealer.players))
+
+    # Let T(ai) be the set of objects whose A attribute value is ai
+    # A is a dict where the keys are attributes and the values are the matching desired values
+    def get_Tai(self, A):
+        attrs_str, values_str = self.__get_attrs_permutation(A)
+
+        try:
+            return self.__db[attrs_str][values_str][0]
+        except KeyError:
+            return 0
+
+    def __get_attrs_permutation(self, A):
+        attrs = list(A.keys())
+        attrs.sort()
+        values = [A[attr] for attr in attrs]
+        attrs_str = ','.join(attrs)
+        values_str = ','.join(values)
+        return attrs_str, values_str
 
     # let T(ai,cj) be the set of objects with value of A is ai and category cj.
-    def get_Tai_Cai(self, c, a, i, db):
-        # return (count # of appeareance of ci in get_Tai(self, a, i, db))
-        return
+    # A is a dict where the keys are attributes and the values are the matching desired values
+    def get_Tac(self, A, c):
+        attrs_str, values_str = self.__get_attrs_permutation(A)
+
+        try:
+            return self.__db[attrs_str][values_str][1][c]
+        except KeyError:
+            return 0
 
     def get_c_sum(self, c):
         # return (count # of objects with category c in db)
         return
+
+    def __generate_poly(self):
+        for i in range(self.__num_of_players):
+            coefficient = random.randint(-20, 20)
+            while coefficient == 0:
+                coefficient = random.randint(-20, 20)
+            self.__poly.append(coefficient)
+
+    def connect(self, port=8000):
+        port = 8000
+        host = "127.0.0.1"
+        dealer = socket.socket()
+        dealer.connect((host, port))
+        print(f"player #{self.idx} created")
