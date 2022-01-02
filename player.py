@@ -74,10 +74,15 @@ class Player:
 
     def is_one_category(self, attrs_dict):
         attrs_str, values_str = self.__get_attrs_permutation(attrs_dict)
-        categories = self.__db[attrs_str][values_str][1]
-        if len(categories) == 1:
-            return list(categories.keys())[0]
-        return None
+        try:
+            categories = self.__db[attrs_str][values_str][1]
+            if len(categories) == 1:
+                return list(categories.keys())[0]
+            elif len(categories) > 1:
+                return None
+            return ""
+        except KeyError:
+            return ""
 
     def __get_attrs_permutation(self, attrs_dict):
         if len(attrs_dict) == 0:
