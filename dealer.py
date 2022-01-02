@@ -1,21 +1,15 @@
 import random
-import socket
-import math
 from math import log2
 from node import Node
-
 from scipy.interpolate import lagrange
-
+from shared import PLAYERS, DEALER
 from player import Player
 
-players = [Player(4, index) for index in range(4)]
 
 class Dealer:
     def __init__(self, num_of_players):
         self.__num_of_players = num_of_players
         self.__random_X_vals = self.create_random_X_vals()
-        self.__players = []
-        self.socket = None
 
     def create_random_X_vals(self):
         return list(random.sample(range(1, 50), self.__num_of_players))
@@ -45,10 +39,10 @@ class Dealer:
         if not node:
             node = Node()
         if len(C) == 1:
-        # first cond: check if all objects in O have the same category ci
-        # we do it by calc get_c_sum in each player for each category.
-        # if for a specific category ci all players return that get_c_sum(ci) == curr_db length
-        #  => if true -> return ci
+            # first cond: check if all objects in O have the same category ci
+            # we do it by calc get_c_sum in each player for each category.
+            # if for a specific category ci all players return that get_c_sum(ci) == curr_db length
+            #  => if true -> return ci
             node.value = C[0];
             return node;
         if (len(R) == 0):
@@ -73,32 +67,15 @@ class Dealer:
                 for ci in C:
                     Tac[ai][ci] = self.get_Tai_ci(node.attrs, ai, ci)
 
-
-
-
-
-    async def connect(self):
-        host = "127.0.0.1"
-        port = 8000
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.bind((host, port))
-        self.socket.listen(self.__num_of_players)
-        for i in range(self.__num_of_players):
-            (player_connection, player_address) = self.socket.accept()
-            player_connection.send(f'{i},{self.__num_of_players},{self.__random_X_vals[i]}'.encode())
-            self.__players.append(player_connection)
-
     def main_loop(self):
-        print(f"Server created with {self.__num_of_players} parties")
-        # for i in range(self.__num_of_players):
-        #     # (player_connection, player_address) = self.socket.acceept()
-        #     # players.append(player_connection)
+        pass
 
 
 def main():
-    dealer = Dealer(4)
-    dealer.connect()
-    dealer.main_loop()
+    DEALER = Dealer(4)
+    for i in range(4):
+        PLAYERS.append(Player(i, 4))
+    DEALER.main_loop()
     print("Server created")
 
 

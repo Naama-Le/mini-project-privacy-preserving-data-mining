@@ -1,17 +1,18 @@
 import random
-import socket
 from db import DB
+from shared import PLAYERS
 
 
 class Player:
 
-    def __init__(self):
-        self.idx = None
-        self.__db = None
-        self.__num_of_players = None
+    def __init__(self, idx, num_of_players):
+        self.idx = idx
+        self.__db = DB(idx + 1)
+        self.__num_of_players = num_of_players
 
         self.__poly = []
         self.__generate_poly()
+        print(len(PLAYERS))
 
     # def get_poly_val(self):
     #     # x = self.__get_x_vals()
@@ -68,28 +69,5 @@ class Player:
     def get_db(self):
         return self.__db
 
-    def connect(self):
-        host = "127.0.0.1"
-        port = 8000
-        dealer = socket.socket()
-        dealer.connect((host, port))
-
-        buffer_size = 1024
-        msg = dealer.recv(buffer_size).decode()
-        [idx, num_of_players] = [int(m) for m in msg.split(',')]
-        self.idx = idx
-        self.__num_of_players = num_of_players
-        self.__db = DB(idx)
-        print(f"player #{self.idx} created")
-
     def __get_x(self):
         pass
-
-
-def main():
-    player = Player()
-    player.connect()
-
-
-if __name__ == "__main__":
-    main()
