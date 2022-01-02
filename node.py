@@ -1,8 +1,7 @@
 class Node:
     """Contains the information of the node and another nodes of the Decision Tree."""
 
-    def __init__(self, attrs, test):
+    def __init__(self, attrs, value):
         self.attrs = attrs
-        self.test = test
-        self.next = None
+        self.value = value
         self.children = None

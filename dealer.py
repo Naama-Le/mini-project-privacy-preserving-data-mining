@@ -1,5 +1,6 @@
 import random
 from math import log2
+import re
 from node import Node
 from scipy.interpolate import lagrange
 from shared import PLAYERS, DEALER
@@ -9,13 +10,10 @@ from player import Player
 class Dealer:
     def __init__(self, num_of_players):
         self.__num_of_players = num_of_players
-        self.__random_X_vals = self.create_random_X_vals()
 
-    def create_random_X_vals(self):
-        return list(random.sample(range(1, 50), self.__num_of_players))
 
     def get_random_X_vals(self):
-        return self.__random_X_vals
+        return list(random.sample(range(1, 50), self.__num_of_players))
 
     def get_sec_val_sum(self, X, PX):
         return int(round(lagrange(X, PX)(0)))
@@ -38,18 +36,29 @@ class Dealer:
     def ID3(self, R, C, node):
         if not node:
             node = Node()
-        if len(C) == 1:
-            # first cond: check if all objects in O have the same category ci
-            # we do it by calc get_c_sum in each player for each category.
-            # if for a specific category ci all players return that get_c_sum(ci) == curr_db length
-            #  => if true -> return ci
-            node.value = C[0];
+
+        # first cond: check if all objects in O have the same category ci
+        # we do it by check is_one_category in each player for each category.
+        # if all players return that is_one_category == cat
+        #  => node.value = cat
+        cat = ''
+        for player in PLAYERS:
+            player_cat = player.is_one_category(node.attrs)
+            if (player_cat is not None):
+                if (cat == ''):
+                    cat = player_cat
+                elif (cat != player_cat):
+                    cat = ''
+                    break
+        if (cat != ''):
+            node.value = cat;
             return node;
+
         if (len(R) == 0):
             # second condition
             # Return a leaf node whose category is set to the dominant category among the objects in O
             # we calc the dominant by using secret sum af all players get_c_sum
-            node.value = self.find_max_category(node.attrs);
+            node.value = self.find_max_category(node.attrs, C);
             return node;
 
         # else -  Determine the attribute A that best classifies the objects in O
@@ -59,30 +68,68 @@ class Dealer:
         # it will then send it back to all players -> to divide their data accordingly
         # then - Create a new node for every possible value ai of A
         # and recursively call this method on it with R0 = (R - {A}) and O' = O(ai) /*
-        Ta = []
-        Tac = [[]]
-        max_attr = {'attr': '', 'value': 0}
-        for attr in R:
-            for ai in attr:
-                Ta[ai] = self.get_Tai(node.attrs, ai)
+        
+        max_attr = ''
+        max_E_TA = 0
+        for attr, vals in R:
+            Ta = {}
+            Tac = {}
+            for ai in vals:
+                node_attrs = node.attrs
+                node_attrs[attr] = ai
+                Ta[ai] = self.get_Tai(node_attrs)
                 for ci in C:
-                    Tac[ai][ci] = self.get_Tai_ci(node.attrs, ai, ci)
+                    Tac[ai][ci] = self.get_Tac(node_attrs, ci)
             curr_E_TA = self.calc_E_TA(self, R, Ta, Tac)
-            # max_attr update
+            if (curr_E_TA > max_E_TA):
+                max_E_TA = curr_E_TA
+                max_attr = attr
+        node.value = max_attr
+        node.children = {}
+        for attr_value in R[node.value]:
+            child = Node()
+            child.attrs = node.attrs
+            child.attrs[max_attr] = attr_value
+            if self.get_Tai(child.attrs) == 0 :
+                child.value = self.find_max_category(node.attrs, C);
+                node.children[attr_value] = child
+            else:
+                new_R = R
+                new_R.remove(max_attr)
+                node.children[attr_value] = self.ID3(new_R, C, child)
 
 
-    def get_Tai(self, attrs, ai):
+     
+    def find_max_category(self, attrs, C):
+        max_cat = ''
+        max_value = 0
+        for cat in C:
+            X_vals = self.get_random_X_vals()
+            enc_val = []
+            for i in range(len(PLAYERS)):
+                enc_val.append(i)
+                enc_val[i] = PLAYERS[i].get_Tac(attrs, cat, X_vals[i])
+            curr_cat_value = self.get_sec_val_sum(X_vals, enc_val)
+            if (curr_cat_value > max_value):
+                max_value = curr_cat_value
+                max_cat = cat
+        return max_cat
+
+
+    def get_Tai(self, attrs):
         X_vals = self.get_random_X_vals()
         enc_Tai = []
-        for i in range(len(players)):
-            enc_Tai[i] = players[i].get_Tai_sum(attrs, ai, X_vals[i])
+        for i in range(len(PLAYERS)):
+            enc_Tai.append(i)
+            enc_Tai[i] = PLAYERS[i].get_Tai(attrs, X_vals[i])
         return self.get_sec_val_sum(X_vals, enc_Tai)
 
-    def get_Tai_ci(self, attrs, ai, ci):
+    def get_Tac(self, attrs, ci):
         X_vals = self.get_random_X_vals()
         enc_Tai_ci = []
-        for i in range(len(players)):
-            enc_Tai_ci[i] = players[i].get_Tai_ci_sum(attrs, ai, ci, X_vals[i])
+        for i in range(len(PLAYERS)):
+            enc_Tai_ci.append(i)
+            enc_Tai_ci[i] = PLAYERS[i].get_Tac(attrs, ci, X_vals[i])
         return self.get_sec_val_sum(X_vals, enc_Tai_ci)    
 
 
