@@ -31,12 +31,10 @@ class Dealer:
         return E_TA;
 
     # R: Set of attributes to be considered
-    # O: Set of objects to be considered
     # C = {c1,c2,...,ck}: Set of possible categories.
     def ID3(self, R, C, node):
         if not node:
             node = Node()
-
         # first cond: check if all objects in O have the same category ci
         # we do it by check is_one_category in each player for each category.
         # if all players return that is_one_category == cat
@@ -65,9 +63,8 @@ class Dealer:
         # and assign it as the test attribute for the current tree node
         # ask from each player to calc Ta and Tac and sum the other PLAYERS values by SSS
         # the dealer will find the sum of the ss and find the optimal A using calc_E_TA.
-        # it will then send it back to all PLAYERS -> to divide their data accordingly
         # then - Create a new node for every possible value ai of A
-        # and recursively call this method on it with R0 = (R - {A}) and O' = O(ai) /*
+        # and recursively call this method on it with R0 = (R - {A})
         
         max_attr = ''
         max_E_TA = 0
@@ -78,9 +75,10 @@ class Dealer:
                 node_attrs = node.attrs
                 node_attrs[attr] = ai
                 Ta[ai] = self.get_Tai(node_attrs)
+                Tac[ai] = {}
                 for ci in C:
                     Tac[ai][ci] = self.get_Tac(node_attrs, ci)
-            curr_E_TA = self.calc_E_TA(self, R, Ta, Tac)
+            curr_E_TA = self.calc_E_TA(self, R[attr], Ta, Tac)
             if (curr_E_TA > max_E_TA):
                 max_E_TA = curr_E_TA
                 max_attr = attr
@@ -91,9 +89,11 @@ class Dealer:
             child.attrs = node.attrs
             child.attrs[max_attr] = attr_value
             if self.get_Tai(child.attrs) == 0 :
+                # no matching objects for this attrs' values in the data. set it as a leaf
                 child.value = self.find_max_category(node.attrs, C);
                 node.children[attr_value] = child
             else:
+                # recursivly call ID3 with the reduced R 
                 new_R = R
                 new_R.remove(max_attr)
                 node.children[attr_value] = self.ID3(new_R, C, child)
