@@ -10,7 +10,7 @@ from player import Player
 class Dealer:
     def __init__(self, num_of_PLAYERS):
         self.__num_of_PLAYERS = num_of_PLAYERS
-
+        self.tree = {}
 
     def get_random_X_vals(self):
         return list(random.sample(range(1, 50), self.__num_of_PLAYERS))
@@ -25,10 +25,21 @@ class Dealer:
     def calc_E_TA(self, A, Ta, Tac):
         E_TA = (-sum(sum(abs(Tac[attr][cat]) * abs(log2(Tac[attr][cat])) for cat in Tac) for attr in A)) + (
             sum(abs(Ta[attr]) * log2(abs(Ta[attr])) for attr in A))
-        # E_TA = 0
-        # for ai in range(p):
-        #
-        return E_TA;
+        return E_TA
+
+    def build_tree(self):
+        R = {
+            'Age': ['<=20', '21-25', '26-35', '36+'],
+            'Weight': ['<=50', '51-65', '66-80', '81-95', '95+'],
+            'Height': ['<=1.6', '1.61-1.7', '1.71-1.8', '1.81+'],
+            'OFH': ['yes', 'no'],
+            'FAVC': ['yes', 'no'],
+            'CAEC': ['0', '1', '2', '3'],
+            'FAF': ['0', '1', '2', '3'],
+            'Gender': ['Male', 'Female'],
+        }
+        C = ['Insufficient', 'Normal', 'Overweight', 'Obesity']
+        self.tree = self.ID3(R, C, None)
 
     # R: Set of attributes to be considered
     # O: Set of objects to be considered
@@ -44,22 +55,22 @@ class Dealer:
         cat = ''
         for player in PLAYERS:
             player_cat = player.is_one_category(node.attrs)
-            if (player_cat is not None):
-                if (cat == ''):
+            if player_cat is not None:
+                if cat == '':
                     cat = player_cat
-                elif (cat != player_cat):
+                elif cat != player_cat:
                     cat = ''
                     break
-        if (cat != ''):
-            node.value = cat;
-            return node;
+        if cat != '':
+            node.value = cat
+            return node
 
-        if (len(R) == 0):
+        if len(R) == 0:
             # second condition
             # Return a leaf node whose category is set to the dominant category among the objects in O
             # we calc the dominant by using secret sum af all players get_c_sum
-            node.value = self.find_max_category(node.attrs, C);
-            return node;
+            node.value = self.find_max_category(node.attrs, C)
+            return node
 
         # else -  Determine the attribute A that best classifies the objects in O
         # and assign it as the test attribute for the current tree node
@@ -68,7 +79,7 @@ class Dealer:
         # it will then send it back to all PLAYERS -> to divide their data accordingly
         # then - Create a new node for every possible value ai of A
         # and recursively call this method on it with R0 = (R - {A}) and O' = O(ai) /*
-        
+
         max_attr = ''
         max_E_TA = 0
         for attr, vals in R:
@@ -78,10 +89,11 @@ class Dealer:
                 node_attrs = node.attrs
                 node_attrs[attr] = ai
                 Ta[ai] = self.get_Tai(node_attrs)
+                Tac[ai] = {}
                 for ci in C:
                     Tac[ai][ci] = self.get_Tac(node_attrs, ci)
-            curr_E_TA = self.calc_E_TA(self, R, Ta, Tac)
-            if (curr_E_TA > max_E_TA):
+            curr_E_TA = self.calc_E_TA(self, R[attr], Ta, Tac)
+            if curr_E_TA > max_E_TA:
                 max_E_TA = curr_E_TA
                 max_attr = attr
         node.value = max_attr
@@ -90,16 +102,14 @@ class Dealer:
             child = Node()
             child.attrs = node.attrs
             child.attrs[max_attr] = attr_value
-            if self.get_Tai(child.attrs) == 0 :
-                child.value = self.find_max_category(node.attrs, C);
+            if self.get_Tai(child.attrs) == 0:
+                child.value = self.find_max_category(node.attrs, C)
                 node.children[attr_value] = child
             else:
                 new_R = R
                 new_R.remove(max_attr)
                 node.children[attr_value] = self.ID3(new_R, C, child)
 
-
-     
     def find_max_category(self, attrs, C):
         max_cat = ''
         max_value = 0
@@ -110,11 +120,10 @@ class Dealer:
                 enc_val.append(i)
                 enc_val[i] = PLAYERS[i].get_Tac(attrs, cat, X_vals[i])
             curr_cat_value = self.get_sec_val_sum(X_vals, enc_val)
-            if (curr_cat_value > max_value):
+            if curr_cat_value > max_value:
                 max_value = curr_cat_value
                 max_cat = cat
         return max_cat
-
 
     def get_Tai(self, attrs):
         X_vals = self.get_random_X_vals()
@@ -130,7 +139,7 @@ class Dealer:
         for i in range(len(PLAYERS)):
             enc_Tai_ci.append(i)
             enc_Tai_ci[i] = PLAYERS[i].get_Tac(attrs, ci, X_vals[i])
-        return self.get_sec_val_sum(X_vals, enc_Tai_ci)    
+        return self.get_sec_val_sum(X_vals, enc_Tai_ci)
 
     def predict(self, attrs):
         return self.__predict(self.tree, attrs)

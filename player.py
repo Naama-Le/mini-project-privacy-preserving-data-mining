@@ -80,6 +80,8 @@ class Player:
         return None
 
     def __get_attrs_permutation(self, attrs_dict):
+        if len(attrs_dict) == 0:
+            return '', ''
         attrs = list(attrs_dict.keys())
         attrs.sort()
         values = [attrs_dict[attr] for attr in attrs]

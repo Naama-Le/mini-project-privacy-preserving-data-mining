@@ -21,10 +21,13 @@ class DB:
             self.possible_values[attr] = []
 
         n = len(attrs)
-        for i in range(1, 1 << n):
+        for i in range(1 << n):
             s = [attrs[j] for j in range(n) if (i & (1 << j))]
             s.sort()
-            self.dict[','.join(s)] = {}
+            if len(s) == 0:
+                self.dict[''] = {}
+            else:
+                self.dict[','.join(s)] = {}
 
     def __fill_dict(self, attrs, reader):
         for row in reader:
@@ -37,11 +40,12 @@ class DB:
                     self.possible_values[attrs[i]].append(row[i])
 
             for s in self.dict.keys():
-                ls = s.split(',')
                 kmer = ""
-                for attr in ls:
-                    kmer += item[attr] + ','
-                kmer = kmer[:-1]
+                if s != '':
+                    ls = s.split(',')
+                    for attr in ls:
+                        kmer += item[attr] + ','
+                    kmer = kmer[:-1]
 
                 if kmer in self.dict[s].keys():
                     self.dict[s][kmer][0] += 1
