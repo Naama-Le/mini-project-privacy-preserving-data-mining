@@ -68,15 +68,29 @@ class Dealer:
         # and recursively call this method on it with R0 = (R - {A}) and O' = O(ai) /*
         Ta = []
         Tac = [[]]
+        max_attr = {'attr': '', 'value': 0}
         for attr in R:
             for ai in attr:
                 Ta[ai] = self.get_Tai(node.attrs, ai)
                 for ci in C:
                     Tac[ai][ci] = self.get_Tai_ci(node.attrs, ai, ci)
+            curr_E_TA = self.calc_E_TA(self, R, Ta, Tac)
+            # max_attr update
 
 
+    def get_Tai(self, attrs, ai):
+        X_vals = self.get_random_X_vals()
+        enc_Tai = []
+        for i in range(len(players)):
+            enc_Tai[i] = players[i].get_Tai_sum(attrs, ai, X_vals[i])
+        return self.get_sec_val_sum(X_vals, enc_Tai)
 
-
+    def get_Tai_ci(self, attrs, ai, ci):
+        X_vals = self.get_random_X_vals()
+        enc_Tai_ci = []
+        for i in range(len(players)):
+            enc_Tai_ci[i] = players[i].get_Tai_ci_sum(attrs, ai, ci, X_vals[i])
+        return self.get_sec_val_sum(X_vals, enc_Tai_ci)    
 
     async def connect(self):
         host = "127.0.0.1"
