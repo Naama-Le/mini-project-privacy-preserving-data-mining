@@ -1,2 +1,1 @@
 PLAYERS = []
-DEALER = None

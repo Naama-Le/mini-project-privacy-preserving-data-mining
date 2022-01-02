@@ -14,53 +14,81 @@ class Player:
         self.__generate_poly()
         print(len(PLAYERS))
 
-    # def get_poly_val(self):
-    #     # x = self.__get_x_vals()
-    #     return sum(coef * x ** k for (k, coef) in enumerate(self.__poly, start=1))
+    def get_idx(self):
+        return self.idx
 
-    # sum all players poly of x_player_index
-    def get_players_sum_Xi_val(self):
-        return
-        # return (sum(player.get_poly_val(self.__player_index) for player in dealer.players))
+    def get_poly_val(self, x, secret):
+        return secret + sum(coef * x ** k for (k, coef) in enumerate(self.__poly, start=1))
 
-    # Let T(ai) be the set of objects whose A attribute value is ai
-    # A is a dict where the keys are attributes and the values are the matching desired values
-    def get_Tai(self, A):
-        attrs_str, values_str = self.__get_attrs_permutation(A)
-
+    # Let T(ai) be the set of objects whose attrs_dict attribute value is ai
+    # attrs_dict is a dict where the keys are attributes and the values are the matching desired values
+    def get_Tai(self, attrs_dict, x, stop=False):
+        attrs_str, values_str = self.__get_attrs_permutation(attrs_dict)
+        t_ai = 0
         try:
-            return self.__db[attrs_str][values_str][0]
+            t_ai = self.__db[attrs_str][values_str][0]
         except KeyError:
-            return 0
+            pass
+        s = self.get_poly_val(x, t_ai)
 
-    def __get_common_category(self, A):
-        attrs_str, values_str = self.__get_attrs_permutation(A)
+        if not stop:
+            for i in range(len(PLAYERS)):
+                if i != self.idx:
+                    s += PLAYERS[i].get_Tai(attrs_dict, x, stop=True)
+        return s
+
+    def find_category_count(self, attrs_dict, x, s=None, stop=False):
+        if s is None:
+            s = {}
+        attrs_str, values_str = self.__get_attrs_permutation(attrs_dict)
         categories = self.__db[attrs_str][values_str][1]
-        return max(categories, key=categories.get)
-
-    def __get_attrs_permutation(self, A):
-        attrs = list(A.keys())
-        attrs.sort()
-        values = [A[attr] for attr in attrs]
-        attrs_str = ','.join(attrs)
-        values_str = ','.join(values)
-        return attrs_str, values_str
+        for c, val in categories:
+            s[c] = self.get_poly_val(x, val)
+            if not stop:
+                for i in range(len(PLAYERS)):
+                    if i != self.idx:
+                        s += PLAYERS[i].find_max_category(attrs_dict, x, s, stop=True)
+        return s
 
     def get_possible_values(self, attr):
         return self.__db.get_possible_values(attr)
 
-    # let T(ai,cj) be the set of objects with value of A is ai and category cj.
-    # A is a dict where the keys are attributes and the values are the matching desired values
-    def get_Tac(self, A, c):
-        attrs_str, values_str = self.__get_attrs_permutation(A)
+    # let T(ai,cj) be the set of objects with value of attrs_dict is ai and category cj.
+    # attrs_dict is a dict where the keys are attributes and the values are the matching desired values
+    def get_Tac(self, attrs_dict, c, x, stop=False):
+        attrs_str, values_str = self.__get_attrs_permutation(attrs_dict)
 
+        t_ac = 0
         try:
-            return self.__db[attrs_str][values_str][1][c]
+            t_ac = self.__db[attrs_str][values_str][1][c]
         except KeyError:
-            return 0
+            pass
+
+        s = self.get_poly_val(x, t_ac)
+
+        if not stop:
+            for i in range(len(PLAYERS)):
+                if i != self.idx:
+                    s += PLAYERS[i].get_Tac(attrs_dict, c, x, stop=True)
+        return s
+
+    def is_one_category(self, attrs_dict):
+        attrs_str, values_str = self.__get_attrs_permutation(attrs_dict)
+        categories = self.__db[attrs_str][values_str][1]
+        if len(categories) == 1:
+            return list(categories.keys())[0]
+        return None
+
+    def __get_attrs_permutation(self, attrs_dict):
+        attrs = list(attrs_dict.keys())
+        attrs.sort()
+        values = [attrs_dict[attr] for attr in attrs]
+        attrs_str = ','.join(attrs)
+        values_str = ','.join(values)
+        return attrs_str, values_str
 
     def __generate_poly(self):
-        for i in range(self.__num_of_players):
+        for i in range(self.__num_of_players - 1):
             coefficient = random.randint(-20, 20)
             while coefficient == 0:
                 coefficient = random.randint(-20, 20)
@@ -68,6 +96,3 @@ class Player:
 
     def get_db(self):
         return self.__db
-
-    def __get_x(self):
-        pass
