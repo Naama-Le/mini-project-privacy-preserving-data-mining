@@ -5,6 +5,7 @@ class DB:
     def __init__(self, idx):
         self.idx = idx
         self.dict = {}
+        self.possible_values = {}
         self.process_db()
 
     def process_db(self):
@@ -16,6 +17,9 @@ class DB:
             self.__fill_dict(attrs, csv_reader)
 
     def __construct_dict(self, attrs):
+        for attr in attrs:
+            self.possible_values[attr] = []
+
         n = len(attrs)
         for i in range(1, 1 << n):
             s = [attrs[j] for j in range(n) if (i & (1 << j))]
@@ -29,6 +33,8 @@ class DB:
 
             for i in range(len(row) - 1):
                 item[attrs[i]] = row[i]
+                if row[i] not in self.possible_values[attrs[i]]:
+                    self.possible_values[attrs[i]].append(row[i])
 
             for s in self.dict.keys():
                 ls = s.split(',')
@@ -45,6 +51,9 @@ class DB:
                         self.dict[s][kmer][1][item_label] = 1
                 else:
                     self.dict[s][kmer] = [1, {item_label: 1}]
+
+    def get_possible_values(self, attr):
+        return self.possible_values[attr]
 
     def __getitem__(self, item):
         return self.dict[item]
