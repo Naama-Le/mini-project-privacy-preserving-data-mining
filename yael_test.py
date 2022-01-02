@@ -2,7 +2,7 @@ from player import Player
 
 
 def main():
-    player = Player(4, 1)
+    player = Player(4, 1, None)
     d = {
         'Age': '21-25',
         'CAEC': '1',
@@ -13,9 +13,10 @@ def main():
         'OFH': 'yes',
         'Weight': '81-95'
     }
-    print(player.get_Tac(d, 'Obesity'))
-    print(player.get_Tac(d, 'Normal'))
-    print(player.get_Tai(d))
+    print(player.get_db())
+    # print(player.get_Tac(d, 'Obesity'))
+    # print(player.get_Tac(d, 'Normal'))
+    # print(player.get_Tai(d))
 
 
 if __name__ == "__main__":
