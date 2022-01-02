@@ -56,7 +56,7 @@ class Dealer:
             # second condition
             # Return a leaf node whose category is set to the dominant category among the objects in O
             # we calc the dominant by using secret sum af all players get_c_sum
-            node.value = self.find_max_category();
+            node.value = self.find_max_category(node.attrs);
             return node;
 
         # else -  Determine the attribute A that best classifies the objects in O
@@ -66,6 +66,17 @@ class Dealer:
         # it will then send it back to all players -> to divide their data accordingly
         # then - Create a new node for every possible value ai of A
         # and recursively call this method on it with R0 = (R - {A}) and O' = O(ai) /*
+        Ta = []
+        Tac = [[]]
+        for attr in R:
+            for ai in attr:
+                Ta[ai] = self.get_Tai(node.attrs, ai)
+                for ci in C:
+                    Tac[ai][ci] = self.get_Tai_ci(node.attrs, ai, ci)
+
+
+
+
 
     async def connect(self):
         host = "127.0.0.1"
