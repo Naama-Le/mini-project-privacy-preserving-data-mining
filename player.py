@@ -11,17 +11,14 @@ from db import DB
 
 class Player:
 
-    def __init__(self, num_of_players, idx, x):
-        self.idx = idx
-        self.__db = DB(idx)
-        self.__num_of_players = num_of_players
-        self.x = x
+    def __init__(self):
+        self.idx = None
+        self.__db = None
+        self.__num_of_players = None
+        self.x = None
 
         self.__poly = []
         self.__generate_poly()
-
-    def get_num_of_players(self):
-        return self.__num_of_players
 
     def get_poly_val(self):
         return sum(coef * self.x ** k for (k, coef) in enumerate(self.__poly, start=1))
@@ -70,9 +67,31 @@ class Player:
                 coefficient = random.randint(-20, 20)
             self.__poly.append(coefficient)
 
-    def connect(self, port=8000):
-        port = 8000
+
+
+    def get_db(self):
+        return self.__db
+
+    def connect(self):
         host = "127.0.0.1"
+        port = 8000
         dealer = socket.socket()
         dealer.connect((host, port))
+
+        buffer_size = 1024
+        msg = dealer.recv(buffer_size).decode()
+        [idx, num_of_players, x] = [int(m) for m in msg.split(',')]
+        self.idx = idx
+        self.__num_of_players = num_of_players
+        self.x = x
+        self.__db = DB(idx)
         print(f"player #{self.idx} created")
+
+
+def main():
+    player = Player()
+    player.connect()
+
+
+if __name__ == "__main__":
+    main()

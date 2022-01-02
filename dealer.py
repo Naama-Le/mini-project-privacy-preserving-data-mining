@@ -59,24 +59,26 @@ class Dealer:
         # then - Create a new node for every possible value ai of A
         # and recursively call this method on it with R0 = (R - {A}) and O' = O(ai) /*
 
-    def connect(self):
+    async def connect(self):
         host = "127.0.0.1"
         port = 8000
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((host, port))
         self.socket.listen(self.__num_of_players)
+        for i in range(self.__num_of_players):
+            (player_connection, player_address) = self.socket.accept()
+            player_connection.send(f'{i},{self.__num_of_players},{self.__random_X_vals[i]}'.encode())
+            self.__players.append(player_connection)
 
     def main_loop(self):
         print(f"Server created with {self.__num_of_players} parties")
-        for i in range(self.__num_of_players):
-            player = Player(self.__num_of_players, i, self.__random_X_vals[i])
-            player.connect()
-            (player_connection, player_address) = self.socket.acceept()
-            players.append(player)
+        # for i in range(self.__num_of_players):
+        #     # (player_connection, player_address) = self.socket.acceept()
+        #     # players.append(player_connection)
 
 
 def main():
-    dealer = Dealer(5)
+    dealer = Dealer(4)
     dealer.connect()
     dealer.main_loop()
     print("Server created")
