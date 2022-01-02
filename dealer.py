@@ -1,6 +1,8 @@
 import random
 import socket
+import math
 from math import log2
+from node import Node
 
 from scipy.interpolate import lagrange
 
@@ -34,21 +36,27 @@ class Dealer:
         # E_TA = 0
         # for ai in range(p):
         #
-        return E_TA
+        return E_TA;
 
     # R: Set of attributes to be considered
     # O: Set of objects to be considered
     # C = {c1,c2,...,ck}: Set of possible categories.
-    def ID3(self, R, C):
-        # firct cond
-        if (len(R) == 0):
-            # Return a leaf node whose category is set to the dominant category among the objects in O
-            # we calc the dominant by using secret sum af all players get_c_sum
-            return
-        # second cond - check if all objects in O have the same category ci
+    def ID3(self, R, C, node):
+        if not node:
+            node = Node()
+        if len(C) == 1:
+        # first cond: check if all objects in O have the same category ci
         # we do it by calc get_c_sum in each player for each category.
         # if for a specific category ci all players return that get_c_sum(ci) == curr_db length
         #  => if true -> return ci
+            node.value = C[0];
+            return node;
+        if (len(R) == 0):
+            # second condition
+            # Return a leaf node whose category is set to the dominant category among the objects in O
+            # we calc the dominant by using secret sum af all players get_c_sum
+            node.value = self.find_max_category(node.attrs);
+            return node;
 
         # else -  Determine the attribute A that best classifies the objects in O
         # and assign it as the test attribute for the current tree node
@@ -57,6 +65,17 @@ class Dealer:
         # it will then send it back to all players -> to divide their data accordingly
         # then - Create a new node for every possible value ai of A
         # and recursively call this method on it with R0 = (R - {A}) and O' = O(ai) /*
+        Ta = []
+        Tac = [[]]
+        for attr in R:
+            for ai in attr:
+                Ta[ai] = self.get_Tai(node.attrs, ai)
+                for ci in C:
+                    Tac[ai][ci] = self.get_Tai_ci(node.attrs, ai, ci)
+
+
+
+
 
     async def connect(self):
         host = "127.0.0.1"
