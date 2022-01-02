@@ -42,12 +42,10 @@ class Dealer:
         self.tree = self.ID3(R, C, None)
 
     # R: Set of attributes to be considered
-    # O: Set of objects to be considered
     # C = {c1,c2,...,ck}: Set of possible categories.
     def ID3(self, R, C, node):
         if not node:
             node = Node()
-
         # first cond: check if all objects in O have the same category ci
         # we do it by check is_one_category in each player for each category.
         # if all players return that is_one_category == cat
@@ -55,30 +53,29 @@ class Dealer:
         cat = ''
         for player in PLAYERS:
             player_cat = player.is_one_category(node.attrs)
-            if player_cat is not None:
-                if cat == '':
+            if (player_cat is not None):
+                if (cat == ''):
                     cat = player_cat
-                elif cat != player_cat:
+                elif (cat != player_cat):
                     cat = ''
                     break
-        if cat != '':
-            node.value = cat
-            return node
+        if (cat != ''):
+            node.value = cat;
+            return node;
 
-        if len(R) == 0:
+        if (len(R) == 0):
             # second condition
             # Return a leaf node whose category is set to the dominant category among the objects in O
             # we calc the dominant by using secret sum af all players get_c_sum
-            node.value = self.find_max_category(node.attrs, C)
-            return node
+            node.value = self.find_max_category(node.attrs, C);
+            return node;
 
         # else -  Determine the attribute A that best classifies the objects in O
         # and assign it as the test attribute for the current tree node
         # ask from each player to calc Ta and Tac and sum the other PLAYERS values by SSS
         # the dealer will find the sum of the ss and find the optimal A using calc_E_TA.
-        # it will then send it back to all PLAYERS -> to divide their data accordingly
         # then - Create a new node for every possible value ai of A
-        # and recursively call this method on it with R0 = (R - {A}) and O' = O(ai) /*
+        # and recursively call this method on it with R0 = (R - {A})
 
         max_attr = ''
         max_E_TA = 0
@@ -93,7 +90,7 @@ class Dealer:
                 for ci in C:
                     Tac[ai][ci] = self.get_Tac(node_attrs, ci)
             curr_E_TA = self.calc_E_TA(self, R[attr], Ta, Tac)
-            if curr_E_TA > max_E_TA:
+            if (curr_E_TA > max_E_TA):
                 max_E_TA = curr_E_TA
                 max_attr = attr
         node.value = max_attr
@@ -102,10 +99,12 @@ class Dealer:
             child = Node()
             child.attrs = node.attrs
             child.attrs[max_attr] = attr_value
-            if self.get_Tai(child.attrs) == 0:
-                child.value = self.find_max_category(node.attrs, C)
+            if self.get_Tai(child.attrs) == 0 :
+                # no matching objects for this attrs' values in the data. set it as a leaf
+                child.value = self.find_max_category(node.attrs, C);
                 node.children[attr_value] = child
             else:
+                # recursivly call ID3 with the reduced R 
                 new_R = R
                 new_R.remove(max_attr)
                 node.children[attr_value] = self.ID3(new_R, C, child)
