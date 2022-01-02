@@ -8,7 +8,6 @@ from player import Player
 
 players = [Player(4, index) for index in range(4)]
 
-
 class Dealer:
     def __init__(self, num_of_players):
         self.__num_of_players = num_of_players
