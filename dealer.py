@@ -1,11 +1,11 @@
 import random
 from math import log2
-import re
 from node import Node
 from scipy.interpolate import lagrange
 from shared import PLAYERS
 from player import Player
 import copy
+from sklearn import tree
 
 
 class Dealer:
@@ -163,10 +163,19 @@ class Dealer:
     def predict(self, attrs):
         return self.__predict(self.tree, attrs)
 
-    def __predict(self, node, attrs):
+    def __predict(self, node, attrs, indent=0):
         if node.children is None or len(node.children) == 0:
-            return node.value
-        return self.__predict(node.children[attrs[node.value]], attrs)
+            print( ('   '*indent) + 'attrs:', node.attrs , '\n' + ('   '*indent) + 'category: ' , node.value)
+            return node.value 
+        attr = list(node.attrs.items())[-1] if (len(node.attrs)) else ''
+        print( ('   '*indent) + 'attributes values:', attr,  '\n' + ('   '*indent) + 'set value for attribute: ', node.value, '\n' )
+        return self.__predict(node.children[attrs[node.value]], attrs, indent+1)
+
+    def display(self, node, indent=0):
+        print( (' '*indent)+ 'value: ' + node.value)        
+        for c in node.children:
+            self.display(c, indent+1)
+
 
     def main_loop(self):
         self.build_tree()
@@ -184,6 +193,9 @@ class Dealer:
         }
         print(self.predict(attrs))
         print(self.tree)
+
+
+
 
 
 def main():
