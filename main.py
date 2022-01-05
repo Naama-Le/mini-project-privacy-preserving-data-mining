@@ -1,6 +1,7 @@
 from dealer import Dealer
 from player import Player
 from shared import PLAYERS
+import csv
 
 dealer = Dealer(4)
 
@@ -105,12 +106,33 @@ def run_gui():
     print("Bye!")
 
 
+def predict_test_db():
+    print("\nCalculating test db error..")
+    with open("test_db.csv..") as db:
+        csv_reader = csv.reader(db)
+        attrs = next(csv_reader)
+        attrs.remove(attrs[-1])
+        count = 0
+        errors = 0
+        for row in csv_reader:
+            count += 1
+            item = {}
+            label = row[-1]
+            for i in range(len(row) - 1):
+                item[attrs[i]] = row[i]
+            if dealer.predict(item) != label:
+                errors += 1
+    print(f"The test db error is {errors/count}\n")
+
+
 def main():
     for i in range(4):
         PLAYERS.append(Player(i, 4))
     print("Decision Tree in construction...")
     build_tree()
     print("Tree constructed!")
+
+    predict_test_db()
     run_gui()
 
 

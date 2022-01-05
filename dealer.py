@@ -141,11 +141,12 @@ class Dealer:
             enc_Tai_ci[i] = PLAYERS[i].get_Tac(attrs, ci, X_vals[i])
         return self.get_sec_val_sum(X_vals, enc_Tai_ci)
 
-    def predict(self, attrs, path):
+    def predict(self, attrs, path=None):
         return self.__predict(self.tree, attrs, path)
 
-    def __predict(self, node, attrs, path):
-        path.append(node.value)
+    def __predict(self, node, attrs, path=None):
+        if path is not None:
+            path.append(node.value)
         if node.children is None or len(node.children) == 0:
             return node.value
         return self.__predict(node.children[attrs[node.value]], attrs, path)
