@@ -3,15 +3,15 @@ from math import log2
 from node import Node
 from scipy.interpolate import lagrange
 from shared import PLAYERS
-from player import Player
 import copy
-from sklearn import tree
 
 
 class Dealer:
     def __init__(self, num_of_PLAYERS):
         self.__num_of_PLAYERS = num_of_PLAYERS
         self.tree = Node()
+        self.edges = []
+        self.edges_labels = {}
 
     def get_random_X_vals(self):
         return list(random.sample(range(1, 50), self.__num_of_PLAYERS))
@@ -33,30 +33,14 @@ class Dealer:
             T_ai = Ta[ai]
             if T_ai != 0:
                 E_TA += T_ai * log2(T_ai)
-
-        # E_TA = (-sum(sum(abs(Tac[attr][cat]) * abs(log2(Tac[attr][cat])) for cat in Tac[attr].keys()) for attr in A)) + (
-        #     sum(abs(Ta[attr]) * log2(abs(Ta[attr])) for attr in A))
         return E_TA
 
-    def build_tree(self):
-        R = {
-            'Age': ['<=20', '21-25', '26-35', '36+'],
-            'Weight': ['<=50', '51-65', '66-80', '81-95', '95+'],
-            'Height': ['<=1.6', '1.61-1.7', '1.71-1.8', '1.81+'],
-            'OFH': ['yes', 'no'],
-            'FAVC': ['yes', 'no'],
-            'CAEC': ['0', '1', '2', '3'],
-            'FAF': ['0', '1', '2', '3'],
-            'Gender': ['Male', 'Female'],
-        }
-        C = ['Insufficient', 'Normal', 'Overweight', 'Obesity']
-        self.ID3(R, C, self.tree)
+    def build_tree(self, R, C):
+        self.__ID3(R, C, self.tree)
 
     # R: Set of attributes to be considered
     # C = {c1,c2,...,ck}: Set of possible categories.
-    def ID3(self, R, C, node):
-        # if not node:
-        #     node = Node()
+    def __ID3(self, R, C, node):
         # first cond: check if all objects in O have the same category ci
         # we do it by check is_one_category in each player for each category.
         # if all players return that is_one_category == cat
@@ -77,7 +61,6 @@ class Dealer:
         if (cat != ''):
             node.value = cat
             return
-            # return node
 
         if (len(R) == 0):
             # second condition
@@ -85,7 +68,6 @@ class Dealer:
             # we calc the dominant by using secret sum af all players get_c_sum
             node.value = self.find_max_category(node.attrs, C)
             return
-            # return node
 
         # else -  Determine the attribute A that best classifies the objects in O
         # and assign it as the test attribute for the current tree node
@@ -125,9 +107,8 @@ class Dealer:
                 # recursivly call ID3 with the reduced R 
                 new_R = copy.deepcopy(R)
                 new_R.pop(best_attr, None)
-                self.ID3(new_R, C, child)
+                self.__ID3(new_R, C, child)
                 node.children[attr_value] = child
-            # return node
 
     def find_max_category(self, attrs, C):
         max_cat = ''
@@ -160,51 +141,11 @@ class Dealer:
             enc_Tai_ci[i] = PLAYERS[i].get_Tac(attrs, ci, X_vals[i])
         return self.get_sec_val_sum(X_vals, enc_Tai_ci)
 
-    def predict(self, attrs):
-        return self.__predict(self.tree, attrs)
+    def predict(self, attrs, path):
+        return self.__predict(self.tree, attrs, path)
 
-    def __predict(self, node, attrs, indent=0):
+    def __predict(self, node, attrs, path):
+        path.append(node.value)
         if node.children is None or len(node.children) == 0:
-            print( ('   '*indent) + 'attrs:', node.attrs , '\n' + ('   '*indent) + 'category: ' , node.value)
-            return node.value 
-        attr = list(node.attrs.items())[-1] if (len(node.attrs)) else ''
-        print( ('   '*indent) + 'attributes values:', attr,  '\n' + ('   '*indent) + 'set value for attribute: ', node.value, '\n' )
-        return self.__predict(node.children[attrs[node.value]], attrs, indent+1)
-
-    def display(self, node, indent=0):
-        print( (' '*indent)+ 'value: ' + node.value)        
-        for c in node.children:
-            self.display(c, indent+1)
-
-
-    def main_loop(self):
-        self.build_tree()
-        # Gender,Age,Weight,Height,OFH,FAVC,CAEC,FAF,NObeyesdad
-        # Female,<=20,<=50,<=1.6,yes,yes,1,3,Insufficient
-        attrs = {
-            'Gender': 'Female',
-            'Age': '<=20',
-            'Weight': '<=50',
-            'Height': '<=1.6',
-            'OFH': 'yes',
-            'FAVC': 'yes',
-            'CAEC': '1',
-            'FAF': '3'
-        }
-        print(self.predict(attrs))
-        print(self.tree)
-
-
-
-
-
-def main():
-    dealer = Dealer(4)
-    for i in range(4):
-        PLAYERS.append(Player(i, 4))
-    dealer.main_loop()
-    print("Server created")
-
-
-if __name__ == "__main__":
-    main()
+            return node.value
+        return self.__predict(node.children[attrs[node.value]], attrs, path)

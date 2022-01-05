@@ -12,7 +12,6 @@ class Player:
 
         self.__poly = []
         self.__generate_poly()
-        print(len(PLAYERS))
 
     def get_idx(self):
         return self.idx
