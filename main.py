@@ -68,11 +68,11 @@ def run_gui():
 
         print("Do you have family history of overweight?")
         _ofh = input(vals_to_str(binary_vals))
-        OFH = binary_vals[int(_ofh)]
+        OFH = binary_vals[int(_ofh)].lower()
 
         print("Do you eat high caloric food frequently?")
         _favc = input(vals_to_str(binary_vals))
-        FAVC = binary_vals[int(_favc)]
+        FAVC = binary_vals[int(_favc)].lower()
 
         print("Do you eat any food between meals?")
         caec_vals = {1: "No", 2: "Sometimes", 3: "Frequently", 4: "Always"}
