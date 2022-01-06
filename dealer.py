@@ -9,9 +9,7 @@ import copy
 class Dealer:
     def __init__(self, num_of_PLAYERS):
         self.__num_of_PLAYERS = num_of_PLAYERS
-        self.tree = Node()
-        self.edges = []
-        self.edges_labels = {}
+        self.__tree = Node()
 
     def get_random_X_vals(self):
         return list(random.sample(range(1, 50), self.__num_of_PLAYERS))
@@ -36,7 +34,7 @@ class Dealer:
         return E_TA
 
     def build_tree(self, R, C):
-        self.__ID3(R, C, self.tree)
+        self.__ID3(R, C, self.__tree)
 
     # R: Set of attributes to be considered
     # C = {c1,c2,...,ck}: Set of possible categories.
@@ -142,7 +140,7 @@ class Dealer:
         return self.get_sec_val_sum(X_vals, enc_Tai_ci)
 
     def predict(self, attrs, path=None):
-        return self.__predict(self.tree, attrs, path)
+        return self.__predict(self.__tree, attrs, path)
 
     def __predict(self, node, attrs, path=None):
         if path is not None:
