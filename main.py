@@ -108,7 +108,7 @@ def run_gui():
 
 def predict_test_db():
     print("\nCalculating test db error..")
-    with open("test_db.csv..") as db:
+    with open("test_db.csv") as db:
         csv_reader = csv.reader(db)
         attrs = next(csv_reader)
         attrs.remove(attrs[-1])
