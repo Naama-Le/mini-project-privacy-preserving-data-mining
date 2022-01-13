@@ -122,7 +122,7 @@ def predict_test_db():
                 item[attrs[i]] = row[i]
             if dealer.predict(item) != label:
                 errors += 1
-    print(f"The test db error is {errors/count}\n")
+    print("The test db error is {:.2f}%\n".format((errors/count) * 100))
 
 
 def main():
