@@ -38,7 +38,7 @@ def print_path(path):
 
 def run_gui():
     while True:
-        print("Hello, what would you like to do?")
+        print("\nHello, what would you like to do?")
         ans = input("Press 1 if you'd like to predict your obesity level, or 2 if you want to leave\n")
         if int(ans) == 2:
             break
@@ -100,10 +100,10 @@ def run_gui():
 
         ans = input("If want to see your path through the tree, press 1. Else, press 2.\n")
         if int(ans) == 2:
-            break
+            continue
         else:
             print_path(path)
-    print("Bye!")
+    print("\nBye!")
 
 
 def predict_test_db():
@@ -122,7 +122,7 @@ def predict_test_db():
                 item[attrs[i]] = row[i]
             if dealer.predict(item) != label:
                 errors += 1
-    print("The test db error is {:.2f}%\n".format((errors/count) * 100))
+    print("The test db error is {:.2f}%".format((errors/count) * 100))
 
 
 def main():

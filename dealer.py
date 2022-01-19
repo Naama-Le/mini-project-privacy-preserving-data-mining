@@ -20,7 +20,7 @@ class Dealer:
     # calc E_TA without dividing by T as we'll compare these values to find the best attr A among all
     # A is the set of possible attr values for A attr
     # Ta is an array holds Ta values for each a
-    # Tac is a 2D-aaray holds Tac values for each a and category value c
+    # Tac is a 2D-array holds Tac values for each a and category value c
     def calc_E_TA(self, A, Ta, Tac):
         E_TA = 0
         for ai in A:
@@ -56,11 +56,11 @@ class Dealer:
                     break
             else:
                 break
-        if (cat != ''):
+        if cat != '':
             node.value = cat
             return
 
-        if (len(R) == 0):
+        if len(R) == 0:
             # second condition
             # Return a leaf node whose category is set to the dominant category among the objects in O
             # we calc the dominant by using secret sum af all players get_c_sum
@@ -88,7 +88,7 @@ class Dealer:
                     Tac[ai][ci] = self.get_Tac(node_attrs, ci)
 
             curr_E_TA = self.calc_E_TA(R[attr], Ta, Tac)
-            if (curr_E_TA < min_E_TA):
+            if curr_E_TA < min_E_TA:
                 min_E_TA = curr_E_TA
                 best_attr = attr
         node.value = best_attr
@@ -102,7 +102,7 @@ class Dealer:
                 child.value = self.find_max_category(node.attrs, C)
                 node.children[attr_value] = child
             else:
-                # recursivly call ID3 with the reduced R 
+                # recursively call ID3 with the reduced R
                 new_R = copy.deepcopy(R)
                 new_R.pop(best_attr, None)
                 self.__ID3(new_R, C, child)
@@ -127,16 +127,14 @@ class Dealer:
         X_vals = self.get_random_X_vals()
         enc_Tai = []
         for i in range(len(PLAYERS)):
-            enc_Tai.append(i)
-            enc_Tai[i] = PLAYERS[i].get_Tai(attrs, X_vals[i])
+            enc_Tai.append(PLAYERS[i].get_Tai(attrs, X_vals[i]))
         return self.get_sec_val_sum(X_vals, enc_Tai)
 
     def get_Tac(self, attrs, ci):
         X_vals = self.get_random_X_vals()
         enc_Tai_ci = []
         for i in range(len(PLAYERS)):
-            enc_Tai_ci.append(i)
-            enc_Tai_ci[i] = PLAYERS[i].get_Tac(attrs, ci, X_vals[i])
+            enc_Tai_ci.append(PLAYERS[i].get_Tac(attrs, ci, X_vals[i]))
         return self.get_sec_val_sum(X_vals, enc_Tai_ci)
 
     def predict(self, attrs, path=None):
